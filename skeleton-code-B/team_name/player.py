@@ -16,8 +16,8 @@ class Player:
         else:
             self.isUpper = False
 
-        self.upperTokens = {'R': [], 'S': [], 'P': []}
-        self.lowerTokens = {'R': [], 'S': [], 'P': []}
+        self.ourTokens = {'r': [], 's': [], 'p': []}
+        self.opponentTokens = {'r': [], 's': [], 'p': []}
 
     def action(self):
         """
@@ -36,12 +36,14 @@ class Player:
         """
         # Handle player actions
         if player_action[0] == "THROW":
-            token_type = player_action[1].upper()
+            token_type = player_action[1]
             coordinates = player_action[2]
-            self.locations[coordinates] = token_type
+            self.ourTokens[token_type].append(coordinates)
         else:
             before = player_action[1]
             after = player_action[2]
+
+
             token = self.locations[before]
             self.locations.pop(before)
             self.locations[after] = token
@@ -50,7 +52,7 @@ class Player:
         if opponent_action[0] == "THROW":
             token_type = opponent_action[1]
             coordinates = opponent_action[2]
-            self.locations[coordinates] = token_type
+            self.opponentTokens[token_type].append(coordinates)
         else:
             before = opponent_action[1]
             after = opponent_action[2]
