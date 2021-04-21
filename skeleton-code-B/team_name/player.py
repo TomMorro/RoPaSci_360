@@ -34,4 +34,26 @@ class Player:
         The parameter opponent_action is the opponent's chosen action,
         and player_action is this instance's latest chosen action.
         """
-        # put your code here
+        # Handle player actions
+        if player_action[0] == "THROW":
+            token_type = player_action[1].upper()
+            coordinates = player_action[2]
+            self.locations[coordinates] = token_type
+        else:
+            before = player_action[1]
+            after = player_action[2]
+            token = self.locations[before]
+            self.locations.pop(before)
+            self.locations[after] = token
+
+        # Handle opponent action
+        if opponent_action[0] == "THROW":
+            token_type = opponent_action[1]
+            coordinates = opponent_action[2]
+            self.locations[coordinates] = token_type
+        else:
+            before = opponent_action[1]
+            after = opponent_action[2]
+            token = self.locations[before]
+            self.locations.pop(before)
+            self.locations[after] = token
