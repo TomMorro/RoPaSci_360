@@ -54,8 +54,8 @@ class Player:
         else:
             self.isUpper = False
 
-        self.ourTokens = {'r': [], 's': [], 'p': []}
-        self.opponentTokens = {'r': [], 's': [], 'p': []}
+        self.ourTokens = {'R': [], 'S': [], 'P': []}
+        self.opponentTokens = {'R': [], 'S': [], 'P': []}
 
     def action(self):
         """
@@ -76,28 +76,28 @@ class Player:
         if player_action[0] == "THROW":
             token_type = player_action[1]
             coordinates = player_action[2]
-            self.upperTokens[token_type].append(coordinates)
-            find_eats(token_type, coordinates, self.lowerTokens)
+            self.ourTokens[token_type].append(coordinates)
+            find_eats(token_type, coordinates, self.opponentTokens)
         else:
             before = player_action[1]
             after = player_action[2]
-            token_type = find_token(before, self.upperTokens)
-            self.upperTokens[token_type].remove(before)
-            self.upperTokens[token_type].append(after)
-            find_eats(token_type, after, self.lowerTokens)
+            token_type = find_token(before, self.ourTokens)
+            self.ourTokens[token_type].remove(before)
+            self.ourTokens[token_type].append(after)
+            find_eats(token_type, after, self.opponentTokens)
 
         # Handle opponent action
         if opponent_action[0] == "THROW":
             token_type = opponent_action[1]
             coordinates = opponent_action[2]
-            self.upperTokens[token_type].append(coordinates)
-            find_eats(token_type, coordinates, self.upperTokens)
+            self.ourTokens[token_type].append(coordinates)
+            find_eats(token_type, coordinates, self.ourTokens)
         else:
             before = opponent_action[1]
             after = opponent_action[2]
-            token_type = find_token(before, self.upperTokens)
-            self.lowerTokens[token_type].remove(before)
-            self.lowerTokens[token_type].append(after)
-            find_eats(token_type, coordinates, self.upperTokens)
+            token_type = find_token(before, self.ourTokens)
+            self.opponentTokens[token_type].remove(before)
+            self.opponentTokens[token_type].append(after)
+            find_eats(token_type, after, self.ourTokens)
 
         # Eating recognition as well

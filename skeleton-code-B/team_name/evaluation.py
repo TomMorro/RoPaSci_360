@@ -1,12 +1,12 @@
-# def evaluate_board(board):
-# Things to evaluate
-# Number of tokens each player has
-# A = our_tokens - their_tokens
-# What types of tokens each player has
-# B = our_tokens.rock - their_tokens
-# How close tokens are to being taken
+def evaluate_board(player):
+    # Things to evaluate
+    # Number of tokens each player has
+    ourTokens - theirTokens
+    # Number of tokens left to throw
+    ourThrowableTokens - theirThrowableTokens;
+    # What types of tokens each player has
 
-# Number of tokens left to throw
+    # How close tokens are to being taken
 
 
 def distance_between(token1, token2):
