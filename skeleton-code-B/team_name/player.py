@@ -1,3 +1,41 @@
+# Finds a token given its location
+def find_token(location, player):
+    # Look in Rocks
+    for cell in player["R"]:
+        if cell == location:
+            return "R"
+    # Look in Scissors
+    for cell in player["S"]:
+        if cell == location:
+            return "S"
+    # Look in Papers
+    for cell in player["P"]:
+        if cell == location:
+            return "P"
+
+    return 0
+
+
+# Determine if there were any tokens eat as a result a move
+def find_eats(token_type, location, player_eat):
+    # Rock eats Scissors
+    if token_type == "R":
+        for cell in player_eat["S"]:
+            if cell == location:
+                player_eat["S"].remove(cell)
+
+    # Scissors eats Paper
+    if token_type == "S":
+        for cell in player_eat["P"]:
+            if cell == location:
+                player_eat["P"].remove(cell)
+
+    # Paper eats Rock
+    if token_type == "P":
+        for cell in player_eat["R"]:
+            if cell == location:
+                player_eat["R"].remove(cell)
+
 
 class Player:
 
@@ -38,24 +76,28 @@ class Player:
         if player_action[0] == "THROW":
             token_type = player_action[1]
             coordinates = player_action[2]
-            self.ourTokens[token_type].append(coordinates)
+            self.upperTokens[token_type].append(coordinates)
+            find_eats(token_type, coordinates, self.lowerTokens)
         else:
             before = player_action[1]
             after = player_action[2]
-
-
-            token = self.locations[before]
-            self.locations.pop(before)
-            self.locations[after] = token
+            token_type = find_token(before, self.upperTokens)
+            self.upperTokens[token_type].remove(before)
+            self.upperTokens[token_type].append(after)
+            find_eats(token_type, after, self.lowerTokens)
 
         # Handle opponent action
         if opponent_action[0] == "THROW":
             token_type = opponent_action[1]
             coordinates = opponent_action[2]
-            self.opponentTokens[token_type].append(coordinates)
+            self.upperTokens[token_type].append(coordinates)
+            find_eats(token_type, coordinates, self.upperTokens)
         else:
             before = opponent_action[1]
             after = opponent_action[2]
-            token = self.locations[before]
-            self.locations.pop(before)
-            self.locations[after] = token
+            token_type = find_token(before, self.upperTokens)
+            self.lowerTokens[token_type].remove(before)
+            self.lowerTokens[token_type].append(after)
+            find_eats(token_type, coordinates, self.upperTokens)
+
+        # Eating recognition as well
