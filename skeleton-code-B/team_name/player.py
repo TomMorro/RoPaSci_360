@@ -56,6 +56,8 @@ class Player:
 
         self.ourTokens = {'R': [], 'S': [], 'P': []}
         self.opponentTokens = {'R': [], 'S': [], 'P': []}
+        self.ourThrows = 0
+        self.opponentThrows = 0
 
     def action(self):
         """
@@ -77,6 +79,7 @@ class Player:
             token_type = player_action[1]
             coordinates = player_action[2]
             self.ourTokens[token_type].append(coordinates)
+            self.ourThrows += 1
             find_eats(token_type, coordinates, self.opponentTokens)
         else:
             before = player_action[1]
@@ -90,7 +93,8 @@ class Player:
         if opponent_action[0] == "THROW":
             token_type = opponent_action[1]
             coordinates = opponent_action[2]
-            self.ourTokens[token_type].append(coordinates)
+            self.opponentTokens[token_type].append(coordinates)
+            self.opponentThrows += 1
             find_eats(token_type, coordinates, self.ourTokens)
         else:
             before = opponent_action[1]
