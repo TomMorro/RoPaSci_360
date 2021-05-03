@@ -3,23 +3,21 @@ import simulate
 
 
 # Create a Payoff Matrix
-def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_throws):
+def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper):
     payoff = []  # Overall payoff matrix
-    our_moves = []  # Collection of all our possible moves
-    opponents_moves = []  # Collection of all opponent possible moves
 
     # generate possible moves for each player
-    our_moves = generate_moves(our_tokens, our_throws, True)
-    opponents_moves = generate_moves(opponents_tokens, opponents_throws, False)
+    our_moves = generate_moves(our_tokens, our_throws, is_upper)
+    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
 
     # generate the util
-    row = []
     for opponents_move in opponents_moves:
+        row = []
         for our_move in our_moves:
             new_board = simulate.simulate_move(our_move, opponents_move)
             value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
             row.append(value)
-    payoff.append(row)
+        payoff.append(row)
 
 
 def find_slide_moves(origin):
@@ -94,7 +92,7 @@ def generate_moves(tokens, throws, is_upper):
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
-        for token in token_type:
+        for token in tokens[token_type]:
             slides = find_slide_moves(token)
             for move in slides:
                 possible_moves.append(("SLIDE", token, move))
@@ -107,11 +105,11 @@ def generate_moves(tokens, throws, is_upper):
     for cell in throw_locations:
         for i in range(0, 2):
             if i == 0:
-                possible_moves.append(("THROW", "p", cell))
+                possible_moves.append(("THROW", "P", cell))
             elif i == 1:
-                possible_moves.append(("THROW", "r", cell)) # Fix notation once figured out a representation
+                possible_moves.append(("THROW", "R", cell))  # Fix notation once figured out a representation
             else:
-                possible_moves.append(("THROW", "s", cell))
+                possible_moves.append(("THROW", "S", cell))
 
     return possible_moves
 
