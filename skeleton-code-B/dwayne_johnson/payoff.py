@@ -1,3 +1,4 @@
+import copy
 import evaluation
 import simulate
 
@@ -14,10 +15,12 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
     for opponents_move in opponents_moves:
         row = []
         for our_move in our_moves:
-            new_board = simulate.simulate_move(our_move, opponents_move)
+            new_board = simulate.simulate_move(our_move, opponents_move, copy.deepcopy(our_tokens), copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
             value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
             row.append(value)
         payoff.append(row)
+
+    print(payoff)
 
 
 def find_slide_moves(origin):
@@ -103,7 +106,7 @@ def generate_moves(tokens, throws, is_upper):
 
     throw_locations = find_throwable_cells(throws, is_upper)
     for cell in throw_locations:
-        for i in range(0, 2):
+        for i in range(0, 3):
             if i == 0:
                 possible_moves.append(("THROW", "P", cell))
             elif i == 1:

@@ -1,12 +1,7 @@
-import player
 import board
 
 
-def simulate_move(our_action, opponents_action):
-    our_tokens = player.ourTokens
-    opponents_tokens = player.opponentTokens
-    our_throws = player.ourThrows
-    opponents_throws = player.opponentThrows
+def simulate_move(our_action, opponents_action, our_tokens, opponents_tokens, our_throws, opponents_throws):
     if our_action[0] == "THROW":
         token_type = our_action[1]
         coordinates = our_action[2]
