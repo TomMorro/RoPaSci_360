@@ -1,21 +1,25 @@
 import evaluation
+import simulate
 
 
 # Create a Payoff Matrix
 def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_throws):
-    payoff = {}  # Overall payoff matrix
+    payoff = []  # Overall payoff matrix
     our_moves = []  # Collection of all our possible moves
     opponents_moves = []  # Collection of all opponent possible moves
 
     # generate possible moves for each player
-    our_moves = generate_moves(our_tokens, our_throws)
-    opponents_moves = generate_moves(opponents_tokens, opponents_throws)
+    our_moves = generate_moves(our_tokens, our_throws, True)
+    opponents_moves = generate_moves(opponents_tokens, opponents_throws, False)
 
-    for our_move in our_moves:
-        for opponents_move in opponents_moves:
-            move_combo = (our_move, opponents_move)
-            new_board = simulate_move(our_move, opponents_move)
-            payoff[move_combo] = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
+    # generate the util
+    row = []
+    for opponents_move in opponents_moves:
+        for our_move in our_moves:
+            new_board = simulate.simulate_move(our_move, opponents_move)
+            value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
+            row.append(value)
+    payoff.append(row)
 
 
 def find_slide_moves(origin):
@@ -86,29 +90,28 @@ def check_on_board(cell):
 
 
 # Generates the set of all possible moves for a player
-def generate_moves(tokens, throws):
+def generate_moves(tokens, throws, is_upper):
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
         for token in token_type:
             slides = find_slide_moves(token)
             for move in slides:
-                possible_moves.append((token, move))
+                possible_moves.append(("SLIDE", token, move))
 
-            swings = find_swing_moves(token)
+            swings = find_swing_moves(token, tokens)
             for move in swings:
-                possible_moves.append((token, move))
+                possible_moves.append(("SWING", token, move))
 
-    # Add all possible throws
-    throw_locations = find_throwable_cells(our_throws)
+    throw_locations = find_throwable_cells(throws, is_upper)
     for cell in throw_locations:
-        for i in range(0,2):
+        for i in range(0, 2):
             if i == 0:
-                possible_moves.append(paper, cell)
+                possible_moves.append(("THROW", "p", cell))
             elif i == 1:
-                possible_moves.append(rock, cell) # Fix notation once figured out a representation
+                possible_moves.append(("THROW", "r", cell)) # Fix notation once figured out a representation
             else:
-                possible_moves.append(scissors, cell)
+                possible_moves.append(("THROW", "s", cell))
 
     return possible_moves
 
@@ -140,6 +143,7 @@ def find_throwable_cells(throws, is_upper):
             j += 1
         i -= 1
     return throwable_cells
+
 
 def find_surroundings(r, q):
     """

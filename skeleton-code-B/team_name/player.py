@@ -1,40 +1,4 @@
-# Finds a token given its location
-def find_token(location, player):
-    # Look in Rocks
-    for cell in player["R"]:
-        if cell == location:
-            return "R"
-    # Look in Scissors
-    for cell in player["S"]:
-        if cell == location:
-            return "S"
-    # Look in Papers
-    for cell in player["P"]:
-        if cell == location:
-            return "P"
-
-    return 0
-
-
-# Determine if there were any tokens eat as a result a move
-def find_eats(token_type, location, player_eat):
-    # Rock eats Scissors
-    if token_type == "R":
-        for cell in player_eat["S"]:
-            if cell == location:
-                player_eat["S"].remove(cell)
-
-    # Scissors eats Paper
-    if token_type == "S":
-        for cell in player_eat["P"]:
-            if cell == location:
-                player_eat["P"].remove(cell)
-
-    # Paper eats Rock
-    if token_type == "P":
-        for cell in player_eat["R"]:
-            if cell == location:
-                player_eat["R"].remove(cell)
+import board
 
 
 class Player:
@@ -80,14 +44,14 @@ class Player:
             coordinates = player_action[2]
             self.ourTokens[token_type].append(coordinates)
             self.ourThrows += 1
-            find_eats(token_type, coordinates, self.opponentTokens)
+            board.find_eats(token_type, coordinates, self.ourTokens, self.opponentTokens)
         else:
             before = player_action[1]
             after = player_action[2]
-            token_type = find_token(before, self.ourTokens)
+            token_type = board.find_token(before, self.ourTokens)
             self.ourTokens[token_type].remove(before)
             self.ourTokens[token_type].append(after)
-            find_eats(token_type, after, self.opponentTokens)
+            board.find_eats(token_type, after, self.ourTokens, self.opponentTokens)
 
         # Handle opponent action
         if opponent_action[0] == "THROW":
@@ -95,13 +59,13 @@ class Player:
             coordinates = opponent_action[2]
             self.opponentTokens[token_type].append(coordinates)
             self.opponentThrows += 1
-            find_eats(token_type, coordinates, self.ourTokens)
+            board.find_eats(token_type, coordinates, self.ourTokens, self.opponentTokens)
         else:
             before = opponent_action[1]
             after = opponent_action[2]
-            token_type = find_token(before, self.ourTokens)
+            token_type = board.find_token(before, self.ourTokens)
             self.opponentTokens[token_type].remove(before)
             self.opponentTokens[token_type].append(after)
-            find_eats(token_type, after, self.ourTokens)
+            board.find_eats(token_type, after, self.ourTokens, self.opponentTokens)
 
         # Eating recognition as well
