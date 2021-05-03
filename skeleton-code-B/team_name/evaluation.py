@@ -1,20 +1,21 @@
 def evaluate_board(our_tokens, opponent_tokens, our_throws, opponent_throws):
-    # Things to evaluate
-    # Number of tokens each player has
-    a = count_tokens(our_tokens) - count_tokens(opponent_tokens)
-    # Number of tokens left to throw
-    b = opponent_throws - our_throws
-    # What types of tokens each player has
-    c = 0
-    c += get_ratio(len(our_tokens["R"]), len(opponent_tokens["S"]))
-    c += get_ratio(len(our_tokens["P"]), len(opponent_tokens["R"]))
-    c += get_ratio(len(our_tokens["S"]), len(opponent_tokens["P"]))
 
-    c -= get_ratio(len(opponent_tokens["R"]), len(our_tokens["S"]))
-    c -= get_ratio(len(opponent_tokens["P"]), len(our_tokens["R"]))
-    c -= get_ratio(len(opponent_tokens["S"]), len(our_tokens["P"]))
+    # Number of tokens each player has
+    board_position = count_tokens(our_tokens) - count_tokens(opponent_tokens)
+    # Number of tokens left to throw
+    throw_position = opponent_throws - our_throws
+    # What types of tokens each player has
+    token_position = 0
+    token_position += get_ratio(len(our_tokens["R"]), len(opponent_tokens["S"]))
+    token_position += get_ratio(len(our_tokens["P"]), len(opponent_tokens["R"]))
+    token_position += get_ratio(len(our_tokens["S"]), len(opponent_tokens["P"]))
+
+    token_position -= get_ratio(len(opponent_tokens["R"]), len(our_tokens["S"]))
+    token_position -= get_ratio(len(opponent_tokens["P"]), len(our_tokens["R"]))
+    token_position -= get_ratio(len(opponent_tokens["S"]), len(our_tokens["P"]))
     # How close tokens are to being taken
-    print(a, b, c)
+    # To be implemented
+    return board_position + throw_position + 0.5 * token_position
 
 
 def distance_between(token1, token2):
