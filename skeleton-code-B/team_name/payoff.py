@@ -9,16 +9,9 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
 
     # generate possible moves for each player
     our_moves = generate_moves(our_tokens, our_throws, is_upper)
-    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
+    # opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
 
     # generate the util
-    for our_move in our_moves:
-        row = []
-        for opponents_move in opponents_moves:
-            new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens), copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
-            value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
-            row.append(value)
-        payoff.append(row)
 
     return payoff, our_moves
 

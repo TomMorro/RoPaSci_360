@@ -35,8 +35,8 @@ class Player:
                                                     self.opponentThrows, self.isUpper)
         matrix = payoff_matrix[0]
         ours = payoff_matrix[1]
-        possible_moves = gametheory.solve_game(matrix)[0]
-        move = random.choices(ours, weights=possible_moves)
+        # possible_moves = gametheory.solve_game(matrix)[0]
+        move = random.choices(ours)
         return move[0]
 
     def update(self, opponent_action, player_action):
