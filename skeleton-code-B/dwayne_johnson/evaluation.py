@@ -1,21 +1,17 @@
+import constant
+
+
 def evaluate_board(our_tokens, opponent_tokens, our_throws, opponent_throws):
-
     # Number of tokens each player has
-    board_position = count_tokens(our_tokens) - count_tokens(opponent_tokens)
+    board_eval = count_tokens(our_tokens) - count_tokens(opponent_tokens)
     # Number of tokens left to throw
-    throw_position = opponent_throws - our_throws
+    throw_eval = opponent_throws - our_throws
     # What types of tokens each player has
-    token_position = 0
-    token_position += get_ratio(len(our_tokens["R"]), len(opponent_tokens["S"]))
-    token_position += get_ratio(len(our_tokens["P"]), len(opponent_tokens["R"]))
-    token_position += get_ratio(len(our_tokens["S"]), len(opponent_tokens["P"]))
-
-    token_position -= get_ratio(len(opponent_tokens["R"]), len(our_tokens["S"]))
-    token_position -= get_ratio(len(opponent_tokens["P"]), len(our_tokens["R"]))
-    token_position -= get_ratio(len(opponent_tokens["S"]), len(our_tokens["P"]))
+    token_eval = token_counts(our_tokens, opponent_tokens)
     # How close tokens are to being taken
-    # To be implemented
-    return board_position + throw_position + 0.5 * token_position
+    distance_eval = token_distances(our_tokens, opponent_tokens)
+    return board_eval * constant.BOARD_WEIGHT + throw_eval * constant.THROW_WEIGHT + \
+        token_eval * constant.TOKEN_WEIGHT + distance_eval * constant.DISTANCE_WEIGHT
 
 
 def distance_between(token1, token2):
@@ -60,3 +56,40 @@ def get_ratio(number1, number2):
         return 0
     else:
         return number1 / number2
+
+
+def token_counts(our_tokens, opponent_tokens):
+    token_eval = 0
+    token_eval += get_ratio(len(our_tokens["R"]), len(opponent_tokens["S"]))
+    token_eval += get_ratio(len(our_tokens["P"]), len(opponent_tokens["R"]))
+    token_eval += get_ratio(len(our_tokens["S"]), len(opponent_tokens["P"]))
+
+    token_eval -= get_ratio(len(opponent_tokens["R"]), len(our_tokens["S"]))
+    token_eval -= get_ratio(len(opponent_tokens["P"]), len(our_tokens["R"]))
+    token_eval -= get_ratio(len(opponent_tokens["S"]), len(our_tokens["P"]))
+
+    return token_eval
+
+
+def token_distances(our_tokens, opponent_tokens):
+    distance_eval = 0
+
+    for ally in our_tokens["R"]:
+        for opponent in opponent_tokens["S"]:
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
+        for opponent in opponent_tokens["P"]:
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
+    for ally in our_tokens["P"]:
+        for opponent in opponent_tokens["R"]:
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
+        for opponent in opponent_tokens["S"]:
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
+    for ally in our_tokens["S"]:
+        for opponent in opponent_tokens["P"]:
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
+        for opponent in opponent_tokens["R"]:
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
+    return distance_eval
