@@ -38,34 +38,9 @@ class Player:
         The parameter opponent_action is the opponent's chosen action,
         and player_action is this instance's latest chosen action.
         """
-        # Handle player actions
-        if player_action[0] == "THROW":
-            token_type = player_action[1]
-            coordinates = player_action[2]
-            self.ourTokens[token_type].append(coordinates)
-            self.ourThrows += 1
-            board.find_eats(token_type, coordinates, self.ourTokens, self.opponentTokens)
-        else:
-            before = player_action[1]
-            after = player_action[2]
-            token_type = board.find_token(before, self.ourTokens)
-            self.ourTokens[token_type].remove(before)
-            self.ourTokens[token_type].append(after)
-            board.find_eats(token_type, after, self.ourTokens, self.opponentTokens)
-
-        # Handle opponent action
-        if opponent_action[0] == "THROW":
-            token_type = opponent_action[1]
-            coordinates = opponent_action[2]
-            self.opponentTokens[token_type].append(coordinates)
-            self.opponentThrows += 1
-            board.find_eats(token_type, coordinates, self.ourTokens, self.opponentTokens)
-        else:
-            before = opponent_action[1]
-            after = opponent_action[2]
-            token_type = board.find_token(before, self.ourTokens)
-            self.opponentTokens[token_type].remove(before)
-            self.opponentTokens[token_type].append(after)
-            board.find_eats(token_type, after, self.ourTokens, self.opponentTokens)
-
-        # Eating recognition as well
+        update = board.perform_move(player_action, opponent_action, self.ourTokens, self.opponentTokens,
+                                    self.ourThrows, self.opponentThrows)
+        self.ourTokens = update[0]
+        self.opponentTokens = update[1]
+        self.ourThrows = update[2]
+        self.opponentThrows = update[3]

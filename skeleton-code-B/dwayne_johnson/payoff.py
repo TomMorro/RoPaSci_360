@@ -1,6 +1,6 @@
 import copy
 import evaluation
-import simulate
+import board
 
 
 # Create a Payoff Matrix
@@ -15,9 +15,9 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
     for opponents_move in opponents_moves:
         row = []
         for our_move in our_moves:
-            new_board = simulate.simulate_move(our_move, opponents_move, copy.deepcopy(our_tokens), copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
+            new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens), copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
             value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
-            row.append(value)
+            row.append((our_move, opponents_move, value))
         payoff.append(row)
 
     print(payoff)
