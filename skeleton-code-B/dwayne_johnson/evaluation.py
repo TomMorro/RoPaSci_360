@@ -1,3 +1,6 @@
+import constant
+
+
 def evaluate_board(our_tokens, opponent_tokens, our_throws, opponent_throws):
     # Number of tokens each player has
     board_eval = count_tokens(our_tokens) - count_tokens(opponent_tokens)
@@ -7,7 +10,8 @@ def evaluate_board(our_tokens, opponent_tokens, our_throws, opponent_throws):
     token_eval = token_counts(our_tokens, opponent_tokens)
     # How close tokens are to being taken
     distance_eval = token_distances(our_tokens, opponent_tokens)
-    return board_eval + throw_eval + 0.5 * token_eval + 0.25 * distance_eval
+    return board_eval * constant.BOARD_WEIGHT + throw_eval * constant.THROW_WEIGHT + \
+        token_eval * constant.TOKEN_WEIGHT + distance_eval * constant.DISTANCE_WEIGHT
 
 
 def distance_between(token1, token2):
@@ -69,23 +73,23 @@ def token_counts(our_tokens, opponent_tokens):
 
 def token_distances(our_tokens, opponent_tokens):
     distance_eval = 0
-    
+
     for ally in our_tokens["R"]:
         for opponent in opponent_tokens["S"]:
-            distance_eval += distance_between(ally, opponent)
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
         for opponent in opponent_tokens["P"]:
-            distance_eval -= distance_between(ally, opponent)
-    
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
     for ally in our_tokens["P"]:
         for opponent in opponent_tokens["R"]:
-            distance_eval += distance_between(ally, opponent)
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
         for opponent in opponent_tokens["S"]:
-            distance_eval -= distance_between(ally, opponent)
-    
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
     for ally in our_tokens["S"]:
         for opponent in opponent_tokens["P"]:
-            distance_eval += distance_between(ally, opponent)
+            distance_eval += constant.MAX_DISTANCE - distance_between(ally, opponent)
         for opponent in opponent_tokens["R"]:
-            distance_eval -= distance_between(ally, opponent)
-    
+            distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
+
     return distance_eval
