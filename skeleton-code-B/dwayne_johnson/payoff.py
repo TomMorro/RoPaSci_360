@@ -12,15 +12,15 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
     opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
 
     # generate the util
-    for opponents_move in opponents_moves:
+    for our_move in our_moves:
         row = []
-        for our_move in our_moves:
+        for opponents_move in opponents_moves:
             new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens), copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
             value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
             row.append((our_move, opponents_move, value))
         payoff.append(row)
 
-    print(payoff)
+    return payoff
 
 
 def find_slide_moves(origin):

@@ -1,5 +1,7 @@
 import board
-
+import gametheory
+import payoff
+import random
 
 class Player:
 
@@ -28,7 +30,14 @@ class Player:
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
-        # put your code here
+        payoff_matrix = payoff.create_payoff_matrix(self.ourTokens, self.opponentTokens, self.ourThrows,
+                                                    self.opponentThrows, self.isUpper)
+        matrix = payoff_matrix[0]
+        ours = payoff_matrix[1]
+        possible_moves = gametheory.solve_game(matrix)[0]
+        move = random.choices(ours, weights=possible_moves)
+        return move
+
 
     def update(self, opponent_action, player_action):
         """
