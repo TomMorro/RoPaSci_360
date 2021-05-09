@@ -10,8 +10,11 @@ def evaluate_board(our_tokens, opponent_tokens, our_throws, opponent_throws):
     token_eval = token_counts(our_tokens, opponent_tokens)
     # How close tokens are to being taken
     distance_eval = token_distances(our_tokens, opponent_tokens)
+    # Invincible Tokens
+    invincible_eval = invincible_tokens(our_tokens, opponent_tokens)
     return board_eval * constant.BOARD_WEIGHT + throw_eval * constant.THROW_WEIGHT + \
-        token_eval * constant.TOKEN_WEIGHT + distance_eval * constant.DISTANCE_WEIGHT
+        token_eval * constant.TOKEN_WEIGHT + distance_eval * constant.DISTANCE_WEIGHT + \
+        invincible_eval * constant.INVINCIBLE_WEIGHT
 
 
 def distance_between(token1, token2):
@@ -93,3 +96,13 @@ def token_distances(our_tokens, opponent_tokens):
             distance_eval -= constant.MAX_DISTANCE - distance_between(ally, opponent)
 
     return distance_eval
+
+
+def invincible_tokens(player_tokens, opponent_tokens):
+    if opponent_tokens["r"] and not player_tokens["p"]:
+        return -1
+    elif opponent_tokens["p"] and not player_tokens["s"]:
+        return -1
+    elif opponent_tokens["s"] and not player_tokens["r"]:
+        return -1
+    return 0
