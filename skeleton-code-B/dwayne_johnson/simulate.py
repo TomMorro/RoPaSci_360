@@ -9,7 +9,7 @@ import dwayne_johnson.gametheory as gametheory
 def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper, current_depth, limit):
     # On first call, we are simply generating all our immediate moves
     if current_depth == 0:
-        tree = []  # Overall payoff matrix
+        payoff = []  # Overall payoff matrix
 
         # generate possible moves for each player
         our_moves = generate_moves(our_tokens, our_throws, is_upper)
@@ -24,7 +24,7 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
                 value = simulate_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
                                            current_depth + 1, limit)
                 row.append(value)
-        payoff = (gametheory.solve_game(tree))[0]
+            payoff.append(row)
         return payoff, our_moves
 
     # On subsequent calls we are returning the maximums of each subgame being solved
