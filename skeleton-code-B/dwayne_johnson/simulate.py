@@ -24,11 +24,8 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
                 value = simulate_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
                                            current_depth + 1, limit)
                 row.append(value)
-            if max(row) < 0:
-                tree.append(0)
-            else:
-                tree.append(max(row))
-        return tree, our_moves
+        payoff = (gametheory.solve_game(tree))[0]
+        return payoff, our_moves
 
     # On subsequent calls we are returning the maximums of each subgame being solved
     elif 0 < current_depth < limit:
