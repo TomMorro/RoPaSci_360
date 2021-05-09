@@ -3,7 +3,6 @@ import dwayne_johnson.gametheory as gametheory
 import dwayne_johnson.payoff as payoff
 import dwayne_johnson.simulate as simulate
 import dwayne_johnson.constant as constant
-import random
 
 
 class Player:
@@ -35,13 +34,9 @@ class Player:
         """
         #payoff_matrix = payoff.create_payoff_matrix(self.ourTokens, self.opponentTokens, self.ourThrows,
         #                                           self.opponentThrows, self.isUpper)
-        payoff_matrix = simulate.simulate_move_tree(self.ourTokens, self.opponentTokens, self.ourThrows,
+        move = simulate.simulate_move_tree(self.ourTokens, self.opponentTokens, self.ourThrows,
                                                     self.opponentThrows, self.isUpper, 0, constant.SIMULATE_DEPTH)
 
-        matrix = payoff_matrix[0]
-        ours = payoff_matrix[1]
-        possible_moves = gametheory.solve_game(matrix)[0]
-        move = random.choices(ours, weights=possible_moves)
         return move[0]
 
     def update(self, opponent_action, player_action):

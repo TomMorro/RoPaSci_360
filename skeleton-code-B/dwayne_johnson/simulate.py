@@ -1,4 +1,5 @@
 import copy
+import random
 import dwayne_johnson.evaluation as evaluation
 import dwayne_johnson.board as board
 
@@ -12,8 +13,8 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         payoff = []  # Overall payoff matrix
 
         # generate possible moves for each player
-        our_moves = generate_moves(our_tokens, our_throws, is_upper)
-        opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
+        our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
+        opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
 
         # generate the util
         for our_move in our_moves:
@@ -25,15 +26,22 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
                                            current_depth + 1, limit)
                 row.append(value)
             payoff.append(row)
-        return payoff, our_moves
+
+        if not opponents_moves:
+            move = random.choices(our_moves)
+        else:
+            possible_moves = gametheory.solve_game(payoff)[0]
+            move = random.choices(our_moves, weights=possible_moves)
+
+        return move
 
     # On subsequent calls we are returning the maximums of each subgame being solved
     elif 0 < current_depth < limit:
         tree = []  # Overall payoff matrix
 
         # generate possible moves for each player
-        our_moves = generate_moves(our_tokens, our_throws, is_upper)
-        opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
+        our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
+        opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
 
         # generate the util
         for our_move in our_moves:
@@ -126,20 +134,30 @@ def check_on_board(cell):
 
 
 # Generates the set of all possible moves for a player
-def generate_moves(tokens, throws, is_upper):
+def generate_moves(tokens, opponent_pieces, throws, is_upper, is_player):
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
         for token in tokens[token_type]:
             slides = find_slide_moves(token)
             for move in slides:
-                possible_moves.append(("SLIDE", token, move))
+                if is_player:
+                    if not board.find_token(move, tokens):
+                        possible_moves.append(("SLIDE", token, move))
+                else:
+                    possible_moves.append(("SLIDE", token, move))
 
             swings = find_swing_moves(token, tokens)
             for move in swings:
-                possible_moves.append(("SWING", token, move))
+                if is_player:
+                    if not board.find_token(move, tokens):
+                        possible_moves.append(("SWING", token, move))
+                else:
+                    possible_moves.append(("SWING", token, move))
 
     throw_locations = find_throwable_cells(throws, is_upper)
+    throw_locations = prune_throws(throw_locations, tokens, opponent_pieces, is_player)
+
     for cell in throw_locations:
         for i in range(0, 3):
             if i == 0:
@@ -192,3 +210,16 @@ def find_surroundings(r, q):
 
     """
     return [(r + 1, q), (r - 1, q), (r, q + 1), (r, q - 1), (r + 1, q - 1), (r - 1, q + 1)]
+
+
+def prune_throws(throw_locations, current_player, other_player, is_player):
+    new_throw_locations = []
+
+    for cell in throw_locations:
+        if cell in current_player["r"] and cell in current_player["p"] and cell in current_player["s"]:
+            continue
+        if not is_player and not board.find_token(cell, other_player):
+            continue
+        new_throw_locations.append(cell)
+
+    return new_throw_locations

@@ -8,8 +8,8 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
     payoff = []  # Overall payoff matrix
 
     # generate possible moves for each player
-    our_moves = generate_moves(our_tokens, our_throws, is_upper, isPlayer=True)
-    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper, isPlayer=False)
+    our_moves = generate_moves(our_tokens, our_throws, is_upper, is_player=True)
+    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper, is_player=False)
 
     # generate the util
     for our_move in our_moves:
@@ -91,7 +91,7 @@ def check_on_board(cell):
 
 
 # Generates the set of all possible moves for a player
-def generate_moves(tokens, throws, is_upper, isPlayer):
+def generate_moves(tokens, throws, is_upper, is_player):
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
@@ -105,7 +105,7 @@ def generate_moves(tokens, throws, is_upper, isPlayer):
                 possible_moves.append(("SWING", token, move))
 
     throw_locations = find_throwable_cells(throws, is_upper)
-    if isPlayer:
+    if is_player:
         throw_locations = prune_throws(throw_locations, tokens)
 
     for cell in throw_locations:
