@@ -8,8 +8,8 @@ def create_payoff_matrix(our_tokens, opponents_tokens, our_throws, opponents_thr
     payoff = []  # Overall payoff matrix
 
     # generate possible moves for each player
-    our_moves = generate_moves(our_tokens, our_throws, is_upper)
-    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper)
+    our_moves = generate_moves(our_tokens, our_throws, is_upper, isPlayer=True)
+    opponents_moves = generate_moves(opponents_tokens, opponents_throws, not is_upper, isPlayer=False)
 
     # generate the util
     for our_move in our_moves:
@@ -91,7 +91,7 @@ def check_on_board(cell):
 
 
 # Generates the set of all possible moves for a player
-def generate_moves(tokens, throws, is_upper):
+def generate_moves(tokens, throws, is_upper, isPlayer):
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
@@ -105,6 +105,9 @@ def generate_moves(tokens, throws, is_upper):
                 possible_moves.append(("SWING", token, move))
 
     throw_locations = find_throwable_cells(throws, is_upper)
+    if isPlayer:
+        throw_locations = prune_throws(throw_locations, tokens)
+
     for cell in throw_locations:
         for i in range(0, 3):
             if i == 0:
@@ -157,3 +160,13 @@ def find_surroundings(r, q):
 
     """
     return [(r + 1, q), (r - 1, q), (r, q + 1), (r, q - 1), (r + 1, q - 1), (r - 1, q + 1)]
+
+
+def prune_throws(throw_locations, our_tokens):
+    new_throw_locations = []
+
+    for cell in throw_locations:
+        if cell not in our_tokens["r"] and cell not in our_tokens["p"] and cell not in our_tokens["s"]:
+            new_throw_locations.append(cell)
+
+    return new_throw_locations
