@@ -31,7 +31,6 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
 
         our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
                                     opponents_throws)
-
         # generate the util
         for our_move in our_moves:
             row = []
@@ -64,7 +63,7 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
 
         our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
                                     opponents_throws)
-
+        print(our_moves)
         # generate the util
         for our_move in our_moves:
             row = []
@@ -209,7 +208,7 @@ def generate_moves(tokens, opponent_pieces, throws, is_upper, is_player):
                     possible_moves.append(("SWING", token, move))
 
     throw_locations = find_throwable_cells(throws, is_upper)
-    throw_locations = prune_throws(throw_locations, tokens, opponent_pieces, is_player)
+    throw_locations = prune_throws(throw_locations, tokens, throws, opponent_pieces, is_player, is_upper)
 
     for cell in throw_locations:
         for i in range(0, 3):
@@ -264,7 +263,7 @@ def find_surroundings(r, q):
     return [(r + 1, q), (r - 1, q), (r, q + 1), (r, q - 1), (r + 1, q - 1), (r - 1, q + 1)]
 
 
-def prune_throws(throw_locations, current_player, other_player, is_player):
+def prune_throws(throw_locations, current_player, curr_player_throws, other_player, is_player, is_upper):
     """
     Prunes throws in order to increase efficiency
     Args:
@@ -281,8 +280,16 @@ def prune_throws(throw_locations, current_player, other_player, is_player):
     for cell in throw_locations:
         if cell in current_player["r"] and cell in current_player["p"] and cell in current_player["s"]:
             continue
-        if not is_player and not board.find_token(cell, other_player):
-            continue
+        if not is_player:
+            if not board.find_token(cell, other_player):
+                continue
+        else:
+            row_num = cell[0]
+            if not is_upper:
+                row_num = -row_num
+            value = row_num + curr_player_throws
+            if value != 4 and not board.find_token(cell, other_player):
+                continue
         new_throw_locations.append(cell)
 
     return new_throw_locations
