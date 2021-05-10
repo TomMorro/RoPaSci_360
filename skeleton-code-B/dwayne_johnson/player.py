@@ -1,6 +1,4 @@
 import dwayne_johnson.board as board
-import dwayne_johnson.gametheory as gametheory
-import dwayne_johnson.payoff as payoff
 import dwayne_johnson.simulate as simulate
 import dwayne_johnson.constant as constant
 

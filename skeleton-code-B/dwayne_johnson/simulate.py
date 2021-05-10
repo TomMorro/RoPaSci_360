@@ -2,12 +2,25 @@ import copy
 import random
 import dwayne_johnson.evaluation as evaluation
 import dwayne_johnson.board as board
-
-# Create a Payoff Matrix
-import dwayne_johnson.gametheory as gametheory
+import dwayne_johnson.gametheory as game_theory
 
 
 def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper, current_depth, limit):
+    """
+    Recursively simulate moves into the future in order to select an appropriate move
+    Args:
+        our_tokens: a dictionary containing our tokens
+        opponents_tokens: a dictionary containing the opponent's tokens
+        our_throws: the number of throws we have remaining
+        opponents_throws: the number of throws the opponent has remaining
+        is_upper: whether our player is upper
+        current_depth: the current depth of the search
+        limit: the depth limit of the search
+
+    Returns: At the top level, a move and at lower levels, the guaranteed maximum expected value of the equilibrium
+    mixed strategy
+
+    """
     # On first call, we are simply generating all our immediate moves
     if current_depth == 0:
         payoff = []  # Overall payoff matrix
@@ -30,7 +43,7 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         if not opponents_moves:
             move = random.choices(our_moves)
         else:
-            possible_moves = gametheory.solve_game(payoff)[0]
+            possible_moves = game_theory.solve_game(payoff)[0]
             move = random.choices(our_moves, weights=possible_moves)
 
         return move
@@ -58,7 +71,7 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         if not our_moves or not opponents_moves:
             maximum = evaluation.evaluate_board(our_tokens, opponents_tokens, our_throws, opponents_throws)
         else:
-            maximum = (gametheory.solve_game(tree))[1]
+            maximum = (game_theory.solve_game(tree))[1]
         return maximum
 
     # At a leaf so simply return eval of board
@@ -133,8 +146,19 @@ def check_on_board(cell):
     return True
 
 
-# Generates the set of all possible moves for a player
 def generate_moves(tokens, opponent_pieces, throws, is_upper, is_player):
+    """
+    Generates the set of all possible moves for a player
+    Args:
+        tokens: a dictionary containing the current player's tokens
+        opponent_pieces: a dictionary containing the current opponent's tokens
+        throws: the number of throws the current player has made
+        is_upper: whether the current player is the upper player
+        is_player: whether the current player is the player we control
+
+    Returns: A list of possible moves for the current player
+
+    """
     possible_moves = []
     # Add all possible swings and slides
     for token_type in tokens.keys():
@@ -170,7 +194,6 @@ def generate_moves(tokens, opponent_pieces, throws, is_upper, is_player):
     return possible_moves
 
 
-# Finds the cells capable of being thrown to
 def find_throwable_cells(throws, is_upper):
     """
     Finds the cells able to be thrown to for a player
@@ -213,6 +236,17 @@ def find_surroundings(r, q):
 
 
 def prune_throws(throw_locations, current_player, other_player, is_player):
+    """
+    Prunes throws in order to increase efficiency
+    Args:
+        throw_locations: a list of all possible throws
+        current_player: a dictionary containing the current player's tokens
+        other_player: a dictionary containing the current opponent's tokens
+        is_player: whether the current player is the player we control
+
+    Returns: A pruned list of possible throws
+
+    """
     new_throw_locations = []
 
     for cell in throw_locations:

@@ -1,5 +1,17 @@
-# Performs a given move given a state of the board
 def perform_move(our_action, opponents_action, our_tokens, opponents_tokens, our_throws, opponents_throws):
+    """
+    Performs a given move for a turn
+    Args:
+        our_action: the action chosen by our player
+        opponents_action: teh action chosen by the opponent
+        our_tokens: a dictionary containing our tokens
+        opponents_tokens: a dictionary containing the opponent's tokens
+        our_throws: how many throws we have made
+        opponents_throws: how many throws the opponent has made
+
+    Returns: an updated list of our tokens, our opponent's tokens and the number of throws from each player
+
+    """
     # Handle player actions
     if our_action[0] == "THROW":
         our_token_type = our_action[1]
@@ -32,8 +44,16 @@ def perform_move(our_action, opponents_action, our_tokens, opponents_tokens, our
     return our_tokens, opponents_tokens, our_throws, opponents_throws
 
 
-# Finds a token given its location
 def find_token(location, player):
+    """
+    Finds what type of token a player has on a particular cell
+    Args:
+        location: the location of the cell
+        player: the list of tokens of the player to be searched
+
+    Returns: the token type or 0 if none found
+
+    """
     # Look in Rocks
     for cell in player["r"]:
         if cell == location:
@@ -50,9 +70,19 @@ def find_token(location, player):
     return 0
 
 
-# Determine if there were any tokens eat as a result of a single simultaneous move
 def find_eats(our_token_type, opponent_token_type, our_new_location, opponent_new_location, our_tokens,
               opponents_tokens):
+    """
+    Determines if there were any tokens eaten as a result of a single simultaneous move
+    Args:
+        our_token_type: the type of token we are performing an action with
+        opponent_token_type: the type of token the opponent is performing an action with
+        our_new_location: the new location of our token
+        opponent_new_location: the new location of the opponent's token
+        our_tokens: a dictionary containing our tokens
+        opponents_tokens: a dictionary containing the opponent's tokens
+
+    """
     for i in range(0, 2):
         if i == 0:
             token_type = our_token_type
@@ -87,7 +117,15 @@ def find_eats(our_token_type, opponent_token_type, our_new_location, opponent_ne
                     tokens[token_type].remove(location)
 
 
-# Removes all instances of a token on a cell
 def eat_token_type(token_type, location, our_tokens, opponents_tokens):
+    """
+    Removes all instances of a token on a cell
+    Args:
+        token_type: the type of token
+        location: the location of the token
+        our_tokens: a dictionary containing our tokens
+        opponents_tokens: a dictionary containing the opponent's tokens
+
+    """
     our_tokens[token_type] = [cell for cell in our_tokens[token_type] if cell != location]
     opponents_tokens[token_type] = [cell for cell in opponents_tokens[token_type] if cell != location]
