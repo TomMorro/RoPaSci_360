@@ -1,8 +1,8 @@
 import copy
 import random
-import dwayne_johnson.evaluation as evaluation
-import dwayne_johnson.board as board
-import dwayne_johnson.gametheory as game_theory
+import stage_1.evaluation as evaluation
+import stage_1.board as board
+import stage_1.gametheory as game_theory
 
 
 def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper, current_depth, limit):
@@ -29,17 +29,14 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
         opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
 
-        our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
-                                    opponents_throws)
-
         # generate the util
         for our_move in our_moves:
             row = []
             for opponents_move in opponents_moves:
                 new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens),
                                                copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
-                value = recursive_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
-                                            current_depth + 1, limit)
+                value = simulate_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
+                                           current_depth + 1, limit)
                 row.append(value)
             payoff.append(row)
 
@@ -52,18 +49,12 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         return move
 
     # On subsequent calls we are returning the maximums of each subgame being solved
-
-
-def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper, current_depth, limit):
-    if 0 < current_depth < limit:
+    elif 0 < current_depth < limit:
         tree = []  # Overall payoff matrix
 
         # generate possible moves for each player
         our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
         opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
-
-        our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
-                                    opponents_throws)
 
         # generate the util
         for our_move in our_moves:
@@ -71,8 +62,8 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
             for opponents_move in opponents_moves:
                 new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens),
                                                copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
-                value = recursive_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
-                                            current_depth + 1, limit)
+                value = simulate_move_tree(new_board[0], new_board[1], new_board[2], new_board[3], is_upper,
+                                           current_depth + 1, limit)
                 row.append(value)
             tree.append(row)
 
@@ -86,26 +77,6 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
     # At a leaf so simply return eval of board
     elif current_depth == limit:
         return evaluation.evaluate_board(our_tokens, opponents_tokens, our_throws, opponents_throws)
-
-
-def prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws):
-    pruned_moves = []
-
-    for our_move in our_moves:
-        row = []
-        for opponents_move in opponents_moves:
-            new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens),
-                                           copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
-            value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
-            row.append(value)
-        pair_value = (our_move, row)
-        pruned_moves = prune_rows(pair_value, pruned_moves)
-
-    our_moves.clear()
-    for move in pruned_moves:
-        our_moves.append(move[0])
-
-    return our_moves
 
 
 def find_slide_moves(origin):
@@ -286,40 +257,3 @@ def prune_throws(throw_locations, current_player, other_player, is_player):
         new_throw_locations.append(cell)
 
     return new_throw_locations
-
-
-def prune_rows(new_pair, previous_pairs):
-    updated_pairs = []
-
-    if previous_pairs:
-        for previous_pair in previous_pairs:
-            value = compare_rows(new_pair, previous_pair)
-            if value == 1:
-                return previous_pairs
-            elif value == 0:
-                updated_pairs.append(previous_pair)
-
-    updated_pairs.append(new_pair)
-    return updated_pairs
-
-
-def compare_rows(row1, row2):
-    row1_dominated = True
-    row2_dominated = True
-
-    if len(row1[1]) == 0:
-        return 0
-
-    for i in range(0, len(row1[1])):
-        if row1[1][i] > row2[1][i]:
-            row1_dominated = False
-        elif row1[1][i] < row2[1][i]:
-            row2_dominated = False
-        if not row1_dominated and not row2_dominated:
-            break
-
-    if row1_dominated:
-        return 1
-    if row2_dominated:
-        return -1
-    return 0
