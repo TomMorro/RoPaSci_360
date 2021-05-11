@@ -29,8 +29,9 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
         opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
 
-        our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
-                                    opponents_throws)
+        our_moves = prune_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws)
+        opponents_moves = prune_moves(opponents_moves, our_moves, opponents_tokens, our_tokens, opponents_throws,
+                                      our_throws)
         # generate the util
         for our_move in our_moves:
             row = []
@@ -61,9 +62,11 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
         our_moves = generate_moves(our_tokens, opponents_tokens, our_throws, is_upper, is_player=True)
         opponents_moves = generate_moves(opponents_tokens, our_tokens, opponents_throws, not is_upper, is_player=False)
 
-        our_moves = prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws,
-                                    opponents_throws)
-        print(our_moves)
+        our_moves = prune_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws)
+        opponents_moves = prune_moves(opponents_moves, our_moves, opponents_tokens, our_tokens, opponents_throws,
+                                      our_throws)
+
+        print(len(our_moves), len(opponents_moves))
         # generate the util
         for our_move in our_moves:
             row = []
@@ -87,24 +90,24 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
         return evaluation.evaluate_board(our_tokens, opponents_tokens, our_throws, opponents_throws)
 
 
-def prune_our_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws):
+def prune_moves(player_moves, opponent_moves, player_tokens, opponent_tokens, player_throws, opponent_throws):
     pruned_moves = []
 
-    for our_move in our_moves:
+    for player_move in player_moves:
         row = []
-        for opponents_move in opponents_moves:
-            new_board = board.perform_move(our_move, opponents_move, copy.deepcopy(our_tokens),
-                                           copy.deepcopy(opponents_tokens), our_throws, opponents_throws)
+        for opponent_move in opponent_moves:
+            new_board = board.perform_move(player_move, opponent_move, copy.deepcopy(player_tokens),
+                                           copy.deepcopy(opponent_tokens), player_throws, opponent_throws)
             value = evaluation.evaluate_board(new_board[0], new_board[1], new_board[2], new_board[3])
             row.append(value)
-        pair_value = (our_move, row)
+        pair_value = (player_move, row)
         pruned_moves = prune_rows(pair_value, pruned_moves)
 
-    our_moves.clear()
+    player_moves.clear()
     for move in pruned_moves:
-        our_moves.append(move[0])
+        player_moves.append(move[0])
 
-    return our_moves
+    return player_moves
 
 
 def find_slide_moves(origin):
