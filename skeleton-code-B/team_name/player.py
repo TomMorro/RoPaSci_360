@@ -1,6 +1,5 @@
-import dwayne_johnson.board as board
-import dwayne_johnson.gametheory as gametheory
-import dwayne_johnson.payoff as payoff
+import team_name.board as board
+import team_name.payoff as payoff
 import random
 
 
