@@ -49,7 +49,7 @@ def solve_game(matrix, maximiser=True, row_player=True):
         matrix = -matrix
     m, n = matrix.shape
     # ensure positive
-    c = -matrix.min(initial=0) + 1
+    c = -matrix.min() + 1
     v_pos = matrix + c
     # solve linear program
     res = opt.linprog(
