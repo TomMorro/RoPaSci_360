@@ -3,6 +3,7 @@ import random
 import dwayne_johnson.evaluation as evaluation
 import dwayne_johnson.board as board
 import dwayne_johnson.gametheory as game_theory
+import dwayne_johnson.constant as const
 
 
 def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throws, is_upper, current_depth, limit):
@@ -32,6 +33,11 @@ def simulate_move_tree(our_tokens, opponents_tokens, our_throws, opponents_throw
         our_moves = prune_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws)
         opponents_moves = prune_moves(opponents_moves, our_moves, opponents_tokens, our_tokens, opponents_throws,
                                       our_throws)
+
+        # If too many moves to consider, don't look into future
+        if len(our_moves) * len(opponents_moves) > const.TOP_LEVEL_LIMIT:
+            current_depth = limit - 1
+
         # generate the util
         for our_move in our_moves:
             row = []
@@ -65,8 +71,10 @@ def recursive_move_tree(our_tokens, opponents_tokens, our_throws, opponents_thro
         our_moves = prune_moves(our_moves, opponents_moves, our_tokens, opponents_tokens, our_throws, opponents_throws)
         opponents_moves = prune_moves(opponents_moves, our_moves, opponents_tokens, our_tokens, opponents_throws,
                                       our_throws)
+        
+        if len(our_moves) * len(opponents_moves) > const.RECURSIVE_LIMIT:
+            return evaluation.evaluate_board(our_tokens, opponents_tokens, our_throws, opponents_throws)
 
-        print(len(our_moves), len(opponents_moves))
         # generate the util
         for our_move in our_moves:
             row = []
@@ -169,9 +177,10 @@ def check_on_board(cell):
     Returns: whether the cell is in a legal position on the board
 
     """
-    if cell[0] > 4 or cell[0] < -4 or cell[1] > 4 or cell[1] < -4:
+    if cell[0] > const.BOARD_BOUNDARY or cell[0] < -const.BOARD_BOUNDARY or cell[1] > const.BOARD_BOUNDARY \
+            or cell[1] < -const.BOARD_BOUNDARY:
         return False
-    if cell[0] + cell[1] > 4 or cell[0] + cell[1] < -4:
+    if cell[0] + cell[1] > const.BOARD_BOUNDARY or cell[0] + cell[1] < -const.BOARD_BOUNDARY:
         return False
 
     return True
@@ -235,14 +244,14 @@ def find_throwable_cells(throws, is_upper):
     Returns: a list of cells that can be thrown to
 
     """
-    i = 4
+    i = const.BOARD_BOUNDARY
     throwable_cells = []
-    while i + throws >= 4 and throws < 9:
+    while i + throws >= const.BOARD_BOUNDARY and throws < const.MAX_THROWS:
         if i >= 0:
-            j = -4
+            j = -const.BOARD_BOUNDARY
         else:
-            j = -4 - i
-        while j + i <= 4 and j <= 4:
+            j = -const.BOARD_BOUNDARY - i
+        while j + i <= const.BOARD_BOUNDARY and j <= const.BOARD_BOUNDARY:
             if is_upper:
                 cell = (i, j)
             else:
@@ -272,8 +281,10 @@ def prune_throws(throw_locations, current_player, curr_player_throws, other_play
     Args:
         throw_locations: a list of all possible throws
         current_player: a dictionary containing the current player's tokens
+        curr_player_throws: the number of throws of the current player
         other_player: a dictionary containing the current opponent's tokens
         is_player: whether the current player is the player we control
+        is_upper: whether the current player is upper
 
     Returns: A pruned list of possible throws
 
@@ -291,7 +302,7 @@ def prune_throws(throw_locations, current_player, curr_player_throws, other_play
             if not is_upper:
                 row_num = -row_num
             value = row_num + curr_player_throws
-            if value != 4 and not board.find_token(cell, other_player):
+            if value != const.BOARD_BOUNDARY and not board.find_token(cell, other_player):
                 continue
         new_throw_locations.append(cell)
 
@@ -299,6 +310,15 @@ def prune_throws(throw_locations, current_player, curr_player_throws, other_play
 
 
 def prune_rows(new_pair, previous_pairs):
+    """
+    Prune moves based on whether they get dominated
+    Args:
+        new_pair: the new pair of the move and its' evaluation for every opposing move
+        previous_pairs: the previous pairs of moves and evaluations
+
+    Returns: a new list of pairs, where dominated moves have been pruned out
+
+    """
     updated_pairs = []
 
     if previous_pairs:
@@ -314,6 +334,15 @@ def prune_rows(new_pair, previous_pairs):
 
 
 def compare_rows(row1, row2):
+    """
+    Compares two moves
+    Args:
+        row1: a list containing the first move's evaluations
+        row2: a list containing the second move's evaluations
+
+    Returns: 1 if the first move is dominated, -1 if the second move is dominated, 0 if neither are dominated
+
+    """
     row1_dominated = True
     row2_dominated = True
 

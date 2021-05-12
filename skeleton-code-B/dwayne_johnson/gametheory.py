@@ -4,7 +4,7 @@ linear programming routines.
 
 Original by Matthew Farrugia-Roberts, 2021
 
-Adapted for use by Team dwayne_johnson
+Adapted for use by William Chio and Thomas Morrison
 
 """
 
@@ -12,7 +12,7 @@ import numpy as np
 import scipy.optimize as opt
 
 
-def solve_game(V, maximiser=True, rowplayer=True):
+def solve_game(matrix, maximiser=True, row_player=True):
     """
     Given a utility matrix V for a zero-sum game, compute a mixed-strategy
     security strategy/Nash equilibrium solution along with the bound on the
@@ -23,10 +23,10 @@ def solve_game(V, maximiser=True, rowplayer=True):
 
     Parameters
     ----------
-    * V: (n, m)-array or array-like; utility/payoff matrix;
+    * matrix: (n, m)-array or array-like; utility/payoff matrix;
     * maximiser: bool (default True); compute strategy for the maximiser.
         Set False to play as the minimiser.
-    * rowplayer: bool (default True); compute strategy for the row-chooser.
+    * row_player: bool (default True); compute strategy for the row-chooser.
         Set False to play as the column-chooser.
 
     Returns
@@ -41,16 +41,16 @@ def solve_game(V, maximiser=True, rowplayer=True):
     * OptimisationError: If the optimisation reports failure. The message
         from the optimiser will accompany this exception.
     """
-    V = np.asarray(V)
+    matrix = np.asarray(matrix)
     # lprog will solve for the column-maximiser
-    if rowplayer:
-        V = V.T
+    if row_player:
+        matrix = matrix.T
     if not maximiser:
-        V = -V
-    m, n = V.shape
+        matrix = -matrix
+    m, n = matrix.shape
     # ensure positive
-    c = -V.min() + 1
-    v_pos = V + c
+    c = -matrix.min(initial=0) + 1
+    v_pos = matrix + c
     # solve linear program
     res = opt.linprog(
         np.ones(n),

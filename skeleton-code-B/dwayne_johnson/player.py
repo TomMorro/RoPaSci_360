@@ -30,10 +30,8 @@ class Player:
         Called at the beginning of each turn. Based on the current state
         of the game, select an action to play this turn.
         """
-        #payoff_matrix = payoff.create_payoff_matrix(self.ourTokens, self.opponentTokens, self.ourThrows,
-        #                                           self.opponentThrows, self.isUpper)
         move = simulate.simulate_move_tree(self.ourTokens, self.opponentTokens, self.ourThrows,
-                                                    self.opponentThrows, self.isUpper, 0, constant.SIMULATE_DEPTH)
+                                           self.opponentThrows, self.isUpper, 0, constant.SIMULATE_DEPTH)
 
         return move[0]
 
